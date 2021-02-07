@@ -10,6 +10,7 @@ const getDirectories = path =>
     .filter(dirent => containsDatasetFile(dirent.name))
     .map(dirent => dirent.name)
   ;
+
 //get *.bqsql file names
 const getBqsqlFilesNames = path =>
   readdirSync(path, { withFileTypes: true })
@@ -19,62 +20,47 @@ const getBqsqlFilesNames = path =>
     .sort()
   ;
 
-
 async function quickstart() {
-  try {
 
-    const projectId = await client.getProjectId();
-    // // Iterate over all elements.
-    const formattedParent = client.projectPath(projectId, 'europe');
-    // let nextRequest = { parent: formattedParent };
-    // const options = { autoPaginate: false };
-    // console.log('Data sources:');
-    // do {
-    //   // Fetch the next page.
-    //   const responses = await client.listDataSources(nextRequest, options);
-    //   // The actual resources in a response.
-    //   const resources = responses[0];
-    //   // The next request if the response shows that there are more responses.
-    //   nextRequest = responses[1];
-    //   // The actual response object, if necessary.
-    //   // const rawResponse = responses[2];
-    //   resources.forEach(resource => {
-    //     console.log(`  ${resource.name}`);
-    //   });
-    // } while (nextRequest);
+  const projectId = await client.getProjectId();
 
-    // console.log('\n\n');
-    // console.log('Sources via stream:');
+  const locations = ['europe', 'us'];
+  for (const location of locations) {
 
-    // client
-    //   .listDataSourcesStream({ parent: formattedParent })
-    //   .on('data', element => {
-    //     console.log(`  ${element.name}`);
-    //   });
+    const request = {
+      parent: `projects/${projectId}/locations/${location}`,
+      dataSourceIds: ['scheduled_query']
+    };
+    console.log(JSON.stringify(request));
 
-    await client
-      .createTransferConfig({
-        parent: formattedParent,
-        transferConfig: {
-          destinationDatasetId: 'Business',
-          displayName: 'test by API',
-          params: {
-            fields: 
-              {query: { stringValue: 'SELECT A,B, C FROM Business.Customers'}},
+    const iterable = client.listTransferConfigsAsync(request, { autoPaginate: false });
+    for await (const response of iterable) {
+      console.log(JSON.stringify(response));
+    }
 
-            
-            destination_table_name_template: 'Customers2',
-            write_disposition: 'WRITE_TRUNCATE'
-          },
-          schedule: 'every 15 minutes',
-          dataSourceId: "scheduled_query",
-          disabled: false,
-          datasetRegion: 'europe'
-        }
-      })
-      ;
+  }
 
-  } catch (e) { throw e; }
+  // await client
+  //   .createTransferConfig({
+  //     parent: formattedParent,
+  //     transferConfig: {
+  //       destinationDatasetId: 'Business',
+  //       displayName: 'test by API',
+  //       params: {
+  //         fields:
+  //         {
+  //           query: { stringValue: 'SELECT A,B, C FROM Business.Customers' },
+  //           destination_table_name_template: { stringValue: 'Customers2' },
+  //           write_disposition: { stringValue: 'WRITE_TRUNCATE' }
+  //         }
+  //       },
+  //       schedule: 'every 15 minutes',
+  //       dataSourceId: "scheduled_query",
+  //       disabled: false,
+  //       datasetRegion: 'europe'
+  //     }
+  //   });
+
 }
 
-quickstart().catch(e => { throw e; });
+quickstart();
