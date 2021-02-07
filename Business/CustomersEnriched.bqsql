@@ -1,0 +1,22 @@
+#location=europe
+#schedule=every 15 minutes
+#destination_table=Business.Customers2
+#write_disposition=WRITE_TRUNCATE
+#disabled=false
+
+SELECT A,B, C 
+FROM Business.Customers
+
+-- {
+--   "schedule": "every 15 minutes",
+--   "params": {
+--     "query": "SELECT A,B, C FROM Business.Customers",
+--     "destination_table_name_template": "Customers2_{run_date}",
+--     "write_disposition": "WRITE_TRUNCATE"
+--   },
+--   "displayName": "test display name",
+--   "disabled": false,
+--   "name": "testName",
+--   "dataSourceId": "scheduled_query",
+--   "destinationDatasetId": "Business"
+-- }
